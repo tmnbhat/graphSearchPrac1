@@ -61,9 +61,18 @@ int main()
 	int nodeProp[20][2] = { 0 };
 	int layer = 1, cluster = 1;	//cluster(value in nodeProp[#][1]) represents collection of nodes that are interconnected, i.e nodes with different 'cluster' are NOT connected
 							//layer(value in nodeProp[#][0]) represents the number of steps it takes to reach a particular node from the initial node (valid only for cluster 1)				
-	int queue[20] = { -1 };
+	int queue[200] = { -1 };
+	queue[0] = 1;
 	do {
-
+		for (int i = 0; graph[queue[front]][i] != 0; i++) {
+			int newNode = graph[queue[front]][i];
+			if (nodeProp[newNode][0] == 0) {
+				insertNode(queue, newNode);
+				nodeProp[newNode][0] = layer;
+				nodeProp[newNode][1] = cluster;
+			}
+		}
+		deleteNode(queue);
 	} while(front != rear)
 	/*for (int nodeidx = 0; nodeidx < 20; nodeidx++) {
 		if (nodeLabel[cluster][layer] != 0)
