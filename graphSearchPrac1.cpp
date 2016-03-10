@@ -33,58 +33,46 @@ void deleteNode(int (&queue)[200])
 	}
 	else
 	{
-		printf("Element deleted from queue is : %d\n", queue[front]);
+		//printf("Element deleted from queue is : %d\n", queue[front]);
 		front = front + 1;
 	}
 }
 
-int BFSrecur(int graph[][10], int nodeProp[][2],int node, int cluster, int layer) {
-	if (nodeProp[node][0] == 0) {
-		for (int i = 0; graph[node - 1][i] != 0; i++) {
-			nodeProp[node][0] = layer;
-			nodeProp[node][1] = cluster;
-		}
-		BFSrecur(graph, nodeProp, graph[node - 1][0], cluster, layer + 1);
-	}
-	else
-		return 0;
-	for (int i = 1; graph[node - 1][i] != 0; i++)
-	return 0;					//potentially redundent
-}
-
-int main()
-{	//first idx of graph is the node label. Second idx lists the neigbours of the node in a random order, the value contained representing the node label of the neighbour
-	//note that first idx has to start from 0 while the values contained in 'graph' start from 1, i.e graph[0][#] != 1 (since a node is never its own neigbour)
-	//above note is lso true for nodeProp
-	//this had to be done because undeclared vaules get stored as 0 in a 2d array
-	int graph[20][10] = { {3},{19},{1,4},{3,9},{10},{20,7,9},{6,8},{7},{4,6},{5,19,20},{12},{11},{16},{19},{17},{13,19},{15,18},{17},{2,10,14,16},{6} };
-	int nodeProp[20][2] = { 0 };
-	int layer = 1, cluster = 1;	//cluster(value in nodeProp[#][1]) represents collection of nodes that are interconnected, i.e nodes with different 'cluster' are NOT connected
-							//layer(value in nodeProp[#][0]) represents the number of steps it takes to reach a particular node from the initial node (valid only for cluster 1)				
+int BFS(int graph[][10], int (&nodeLayer)[20],int startNode) {
+	rear = -1;
+	front = -1;
 	int queue[200] = { -1 };
-	queue[0] = 1;
-	do {
+	insertNode(queue, startNode);
+	nodeLayer[startNode] = 0;			//nodeLayer represents the minimum number of steps it takes to reach a particular node from the initial node		
+	while (!(front == -1 || front > rear)) {
 		for (int i = 0; graph[queue[front]][i] != 0; i++) {
-			int newNode = graph[queue[front]][i];
-			if (nodeProp[newNode][0] == 0) {
+			int oldNode = queue[front];
+			int newNode = graph[queue[front]][i] - 1;
+			//cout << newNode << endl;
+			if (nodeLayer[newNode] == -1) {
 				insertNode(queue, newNode);
-				nodeProp[newNode][0] = layer;
-				nodeProp[newNode][1] = cluster;
+				nodeLayer[newNode] = nodeLayer[oldNode] + 1;
 			}
 		}
 		deleteNode(queue);
-	} while(front != rear)
-	/*for (int nodeidx = 0; nodeidx < 20; nodeidx++) {
-		if (nodeLabel[cluster][layer] != 0)
-			continue;
-		for (int neigNodeidx = 0; graph[neigNodeidx] != 0; neigNodeidx++) {
-			if (nodeLabel[cluster][layer] == 0) {
-				nodeLabel[neigNodeidx][0] = cluster;
-				nodeLabel[neigNodeidx][1] = layer;
-			}
-		}
-		cluster++;
-	}*/
-    return 0;
+	}
+	return 0;					
+}
+
+int main()
+{	//first idx of 'graph' is the node label(number). Second idx lists the neigbours of the node in a random order, the value contained representing the node label of the neighbour
+	//NOTE: first idx has to start from 0 while the values contained in 'graph' start from 1, Ex: graph[0][#] != 1 (since a node is never its own neigbour)
+	//above note is also true for nodeLayer
+	//this had to be done because undeclared vaules get stored as 0 in a 2d array
+	int graph[20][10] = { {3},{19},{1,4},{3,9},{10},{20,7,9},{6,8},{7},{4,6},{5,19,20},{12},{11},{16},{19},{17},{13,19},{15,18},{17},{2,10,14,16},{6} };
+	int nodeLayer[20] = { 0 };
+	memset(nodeLayer, -1, sizeof(int) * 20);
+	BFS(graph, nodeLayer, 18);
+	/*cout << "The nodes connected to 1 are : ";
+	for (int i = 0; i < 20; i++)
+		if (nodeLayer[i] != 0)
+			cout << i;*/
+	cout << nodeLayer[12]<< endl;
+	return 0;
 }
 
