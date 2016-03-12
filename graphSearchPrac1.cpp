@@ -38,7 +38,7 @@ void deleteNode(int (&queue)[200])
 	}
 }
 
-int BFS(int graph[][10], int (&nodeLayer)[20],int startNode) {
+int BFS(int graph[][10], int (&nodeLayer)[20],int startNode, int reqNode) {
 	rear = -1;
 	front = -1;
 	int queue[200] = { -1 };
@@ -53,10 +53,32 @@ int BFS(int graph[][10], int (&nodeLayer)[20],int startNode) {
 				insertNode(queue, newNode);
 				nodeLayer[newNode] = nodeLayer[oldNode] + 1;
 			}
+			if ((newNode == reqNode) && (reqNode > 0)) {
+				cout << "The required node " << reqNode + 1 << " was found in layer " << nodeLayer[newNode] << endl;
+				return 0;
+			}
 		}
 		deleteNode(queue);
 	}
+	if (reqNode > 0) {
+		cout << "The required node " << reqNode + 1 << " was NOT found" << endl;
+		return -1;
+	}
 	return 0;					
+}
+
+int DFS(int graph[][10], int (&nodeSeen)[20], int currentNode, int reqNode) {
+	nodeSeen[currentNode] = 1;
+	if ((currentNode == reqNode) && (reqNode >= 0)) {
+		cout << "The required node " << reqNode + 1 << " was found"<< endl;
+		return 0;
+	}
+
+	for (int i = 0; graph[currentNode][i] != 0; i++) {
+		if (nodeSeen[graph[currentNode][i] - 1] != 1)
+			DFS(graph, nodeSeen, graph[currentNode][i] - 1, reqNode);
+	}
+	return 0;
 }
 
 int main()
@@ -64,15 +86,15 @@ int main()
 	//NOTE: first idx has to start from 0 while the values contained in 'graph' start from 1, Ex: graph[0][#] != 1 (since a node is never its own neigbour)
 	//above note is also true for nodeLayer
 	//this had to be done because undeclared vaules get stored as 0 in a 2d array
-	int graph[20][10] = { {3},{19},{1,4},{3,9},{10},{20,7,9},{6,8},{7},{4,6},{5,19,20},{12},{11},{16},{19},{17},{13,19},{15,18},{17},{2,10,14,16},{6} };
+	int graph[20][10] = { {3},{19},{1,4},{3,9},{10},{20,7,9},{6,8},{7},{4,6},{5,19},{12},{11},{16},{19},{17},{13,19},{15,18},{17},{2,10,14,16},{6} };
 	int nodeLayer[20] = { 0 };
 	memset(nodeLayer, -1, sizeof(int) * 20);
-	BFS(graph, nodeLayer, 18);
-	/*cout << "The nodes connected to 1 are : ";
+	DFS(graph, nodeLayer, 16, -1);
+	/*cout << "The nodes connected to 17 are : ";
 	for (int i = 0; i < 20; i++)
-		if (nodeLayer[i] != 0)
-			cout << i;*/
-	cout << nodeLayer[12]<< endl;
+		if (nodeLayer[i] != -1)
+			cout << i + 1 << endl;*/
+	//cout << nodeLayer[12]<< endl;
 	return 0;
 }
 
