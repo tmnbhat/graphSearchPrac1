@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 using namespace std;
-
+ 
 int rear = -1;
 int front = -1;
 
@@ -81,24 +81,24 @@ int DFS(int graph[][10], int(&nodeSeen)[20], int currentNode, int reqNode) {
 	return 0;
 }
 
-int dijkstra(int graphNeig[][5], int graphDist[][5], int(&nodeAnaly)[5], int(&nodePathL)[5], int startNode, int reqNode) {
-	nodeAnaly[startNode] = 1;
-	int numNodesSeen = 1;
+int dijkstra(int graphNeig[][5], double graphDist[][5], int(&nodeAnaly)[5], double(&nodePathL)[5], int startNode, int reqNode) {
+	nodeAnaly[startNode] = 1;				
+	int numNodesSeen = 1;				
 	nodePathL[startNode] = 0;
-	int nodeDistBuff = 1000;
+	double nodeDistBuff = 1000;
 	int nodeAnalyBuff = -1;
-	int nodeAnalyPrevBuff = -1;
-	while (numNodesSeen < 5) {
+	while (true) {
 		for (int i = 0; i < 5; i++)
-			if (nodeAnaly[i] == 1)
+			if (nodeAnaly[i] == 1)					//paths with "tails" discovered
 				for (int j = 0; graphNeig[i][j] != 0; j++)
-					if ((nodeAnaly[graphNeig[i][j] - 1] != 1) && (graphDist[i][j] < nodeDistBuff)) {
-						nodeDistBuff = graphDist[i][j];
+					if ((nodeAnaly[graphNeig[i][j] - 1] != 1) && ((graphDist[i][j] + nodePathL[i]) < nodeDistBuff)) { //"heads" undiscovered...
+						nodeDistBuff = graphDist[i][j] + nodePathL[i];			//...and having shorter overall distance than previous such pair
 						nodeAnalyBuff = graphNeig[i][j] - 1;
-						nodeAnalyPrevBuff = i;
 					}
+		if (nodeDistBuff == 1000)						//all nodes discovered
+			return 0;
 		nodeAnaly[nodeAnalyBuff] = 1;
-		nodePathL[nodeAnalyBuff] = nodePathL[nodeAnalyPrevBuff] + nodeDistBuff;
+		nodePathL[nodeAnalyBuff] = nodeDistBuff;
 		if (nodeAnalyBuff == reqNode)
 			return 0;
 		nodeDistBuff = 1000;
@@ -115,15 +115,15 @@ int main()
 	int graph[20][10] = { { 3 },{ 19 },{ 1,4 },{ 3,9 },{ 10 },{ 20,7,9 },{ 6,8 },{ 7 },{ 4,6 },{ 5,19 },{ 12 },{ 11 },{ 16 },{ 19 },{ 17 },{ 13,19 },{ 15,18 },{ 17 },{ 2,10,14,16 },{ 6 } };
 	int dGraph[10][10] = { { 3,10,-9 },{ 6,-3,-8 },{ 2,-1,-8 },{ 5,6,-7 },{ 7,-10,-4 },{ 8,-2,-6 },{ 4,-5 },{ 2,3,-6 },{ 1,-10 },{ 9,5,-1 } };
 	int nodeLayer[20] = { 0 };
-	int graphDijNeig[5][5] = { { 2,4 },{ 3,4,1 },{ 4,2 },{ 1,2,3,5 },{ 2,4 } };
-	int graphDijDist[5][5] = { { 2,5 },{ 6,2,2 },{ 3,6 },{ 5,2,3,1 },{ 4,1 } };
+	int graphDijNeig[5][5] = { { 2,4 },{ 3,4,1,5 },{ 4,2 },{ 1,2,3,5 },{ 2,4 } };
+	double graphDijDist[5][5] = { { 2,5 },{ 6,2,2,4 },{ 3,6 },{ 5,2,3,1 },{ 4,1 } };
 	int nodeAnaly[5] = { 0 };
-	int nodePathL[5] = { 0 };
+	double nodePathL[5] = { 0 };
 	memset(nodeAnaly, -1, sizeof(int) * 5);
 	memset(nodeLayer, -1, sizeof(int) * 20);
 	//DFS(graph, nodeLayer, 16, -1);
-	dijkstra(graphDijNeig, graphDijDist, nodeAnaly, nodePathL, 0, -1);
-	cout << nodePathL[2] << endl;
+	dijkstra(graphDijNeig, graphDijDist, nodeAnaly, nodePathL, 2, -1);
+	cout << nodePathL[0] << endl;
 	/*cout << "The nodes connected to 17 are : ";
 	for (int i = 0; i < 20; i++)
 	if (nodeLayer[i] != -1)
